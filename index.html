@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation: To-Do List Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.2;
+            
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2a1253;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .highlight {
+            background: #ffffcc;
+            padding: 5px;
+            border-left: 5px solid #ffc107;
+            margin: 10px 0;
+        }
+        
+  /* Navbar Styling */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1px 30px;
+    background: linear-gradient(135deg, #3e1586, #5f7cf0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-links li {
+    list-style: none;
+  }
+  
+  .nav-links a {
+    color: #ffffff;
+    font-size: 18px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  img{
+    width: 80%;
+  }
+  .nav-links a:hover {
+    background: #ffffff;
+    color: #3e1586;
+  }
+  
+  @media (max-width: 768px) {
+    .nav-links {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+  
+    </style>
+</head>
+<body>
+    <div id="nav11">
+    <nav class="navbar">
+        <div class="logo">TODO-LIST</div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="calender.html">Calendar</a></li>
+          <li><a href="source.html">Source code</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <h1>Documentation: To-Do List Application</h1>
+    <p>This document provides a detailed explanation of the To-Do List application built using <b>Node.js</b>, <b>Express.js</b>, <b>PostgreSQL</b>, and <b>EJS templates</b>. It includes functionality for task management, where users can add, edit, and delete tasks dynamically.</p>
+
+    <h2>Table of Contents</h2>
+    <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#files-overview">Files Overview</a></li>
+        <li><a href="#code-explanation">Code Explanation</a>
+            <ul>
+                <li><a href="#index-js">index.js (Backend Logic)</a></li>
+                <li><a href="#index-ejs">index.ejs (Frontend View)</a></li>
+                <li><a href="#main-css">main.css (Styling)</a></li>
+            </ul>
+        </li>
+        <li><a href="#run-application">How to Run the Application</a></li>
+    </ol>
+
+    <h2 id="overview">1. Overview</h2>
+    <p>The application is a simple task manager with the following features:</p>
+    <ul>
+        <li><b>View Tasks:</b> Displays tasks fetched from the PostgreSQL database.</li>
+        <li><b>Add Tasks:</b> Adds new tasks to the database.</li>
+        <li><b>Edit Tasks:</b> Allows in-place editing of tasks.</li>
+        <li><b>Delete Tasks:</b> Removes tasks from the database.</li>
+    </ul>
+
+    <h2 id="files-overview">2. Files Overview</h2>
+    <h3>2.1 index.js</h3>
+    <p>Manages the server-side logic and database interactions. Routes handle CRUD operations: viewing, adding, editing, and deleting tasks.</p>
+
+    <h3>2.2 index.ejs</h3>
+    <p>The main view file, dynamically renders the task list and includes interactive functionality for editing and deleting tasks.</p>
+
+    <h3>2.3 main.css</h3>
+    <p>Provides styling for the UI, ensuring the application has a clean and modern look.</p>
+
+    <h2 id="code-explanation">3. Code Explanation</h2>
+    <h3 id="index-js">3.1 index.js (Backend Logic)</h3>
+    <img src="vscode.png">
+    <div class="highlight">Dependencies and Database Connection</div>
+    <pre><code>import express from "express";
+import bodyParser from "body-parser";
+import sql from "pg";
+
+const app = express();
+const port = 3000;
+
+const db = new sql.Client({
+    user: "postgres",
+    host: "localhost",
+    database: "pawar",
+    password: "8143113307",
+    port: 5433,
+});
+db.connect();
+</code></pre>
+    <p><b>Express:</b> Handles HTTP requests.<br>
+       <b>Body-Parser:</b> Parses incoming request bodies (e.g., form data).<br>
+       <b>PostgreSQL (pg):</b> Manages database connections.</p>
+
+    <h4>Middleware and Static Files</h4>
+    <pre><code>app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+</code></pre>
+    <p><b>bodyParser.urlencoded:</b> Parses form data submitted via POST requests.<br>
+       <b>express.static:</b> Serves static files (e.g., CSS, JavaScript, images) from the <code>public</code> folder.</p>
+
+    <h4>GET / (View Tasks)</h4>
+    <pre><code>app.get("/", async (req, res) => {
+    try {
+        const result = await db.query("SELECT * FROM items ORDER BY id ASC");
+        items = result.rows;
+        let date = new Date();
+        let Today = date.toDateString();
+        res.render("index.ejs", {
+            listTitle: "MY Day",
+            date: Today,
+            listItems: items,
+        });
+    } catch (err) {
+        console.log(err);
+    }
+});
+</code></pre>
+
+    <h3 id="index-ejs">3.2 index.ejs (Frontend View)</h3>
+    <img src="todo-list.png">
+    <p>The EJS file dynamically renders the tasks and provides interactive elements for editing and deleting tasks.</p>
+
+    <h4>Display Tasks</h4>
+    <pre><code>&lt;% for (let item of listItems) { %&gt;
+&lt;div class="item"&gt;
+    &lt;form action="/delete" method="post"&gt;
+        &lt;input type="checkbox" onchange="this.form.submit()" name="deleteItemId" value="&lt;%= item.id %&gt;"&gt;
+    &lt;/form&gt;
+    &lt;p id="title&lt;%=item.id%&gt;"&gt;&lt;%= item.title %&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;% } %&gt;
+</code></pre>
+
+    <h3 id="main-css">3.3 main.css (Styling)</h3>
+    <pre><code>.item {
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ffffff;
+}
+
+button.add {
+    min-height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #2a1253;
+    color: #fff;
+    font-size: 30px;
+}
+</code></pre>
+<h3>SQL storage table:-</h3>
+<img src="sql.png">
+    <h2 id="run-application">4. How to Run the Application</h2>
+    <ol>
+        <li><b>Install Dependencies:</b><br>
+            <code>npm install express body-parser pg</code></li>
+        <li><b>Configure Database:</b> Create the <code>items</code> table:
+            <pre><code>CREATE TABLE items (
+    id INT PRIMARY KEY,
+    title TEXT NOT NULL
+);
+</code></pre></li>
+        <li><b>Start the Application:</b><br>
+            <code>node index.js</code></li>
+        <li><b>Access the Application:</b> Open a browser and visit <code>http://localhost:3000</code></li>
+    </ol>
+</body>
+</html>
